@@ -96,31 +96,31 @@ COTM = "ES, NQ, YM, RTY, GC, SI, CL, NG, 6E, 6J, 6B, 6S, ZN, BTC"
 # Preise je Agent: A6 = 0.0010, A7 = 0.0011, A8 = 0.0020 USDC
 routes = {
     "GET /v1/yield-curve": route(
-        "$0.001", "Returns the US Treasury par yield curve (1 month to 30 years) for a date, with the 2y-10y and "
+        "$0.01", "Returns the US Treasury par yield curve (1 month to 30 years) for a date, with the 2y-10y and "
                   "3m-10y spreads and whether the curve is normal, flat or inverted.",
         ["finance", "rates", "treasury", "macro"], {"date": "2026-10-16"}, {"date": DATE}, [],
         {"date": "2026-10-16", "curve": [{"tenor": "2y", "yield": 3.6}, {"tenor": "10y", "yield": 3.85}],
          "spread_2y_10y": 0.25, "shape": "normal"}),
     "GET /v1/spread": route(
-        "$0.001", "Returns the spread in percentage points between two US Treasury tenors on a date and whether "
+        "$0.01", "Returns the spread in percentage points between two US Treasury tenors on a date and whether "
                   "it is inverted.",
         ["finance", "rates", "treasury"], {"a": "2y", "b": "10y"},
         {"a": S("Tenor: " + TENORS), "b": S("Tenor: " + TENORS), "date": DATE}, [],
         {"a": "2y", "b": "10y", "spread_b_minus_a": 0.25, "inverted": False}),
     "GET /v1/fx": route(
-        "$0.0011", "Returns the ECB euro reference exchange rate between two currencies for a date, including "
+        "$0.011", "Returns the ECB euro reference exchange rate between two currencies for a date, including "
                    "cross rates such as CHF/USD, with source attribution.",
         ["finance", "forex", "exchange-rates", "ecb"], {"base": "EUR", "quote": "USD"},
         {"base": S("ISO currency code, default EUR"), "quote": S("ISO currency code, e.g. USD"), "date": DATE},
         ["quote"], {"date": "2026-10-16", "base": "EUR", "quote": "USD", "rate": 1.08}),
     "GET /v1/convert": route(
-        "$0.0011", "Converts an amount between two currencies using ECB euro reference rates for a date.",
+        "$0.011", "Converts an amount between two currencies using ECB euro reference rates for a date.",
         ["finance", "forex", "conversion"], {"amount": "100", "from": "CHF", "to": "USD"},
         {"amount": S("Amount to convert"), "from": S("ISO currency code"), "to": S("ISO currency code"),
          "date": DATE}, ["amount", "from", "to"],
         {"amount": 100, "base": "CHF", "quote": "USD", "rate": 1.1489, "converted": 114.89}),
     "GET /v1/cot": route(
-        "$0.002", "Returns CFTC Commitments of Traders positioning (non-commercial, commercial and small traders: "
+        "$0.02", "Returns CFTC Commitments of Traders positioning (non-commercial, commercial and small traders: "
                   "long, short, net) for a futures market, with week-over-week change and optional history.",
         ["finance", "futures", "positioning", "cot"], {"market": "ES"},
         {"market": S("Market: " + COTM), "weeks": S("Weeks of history, 1-260. Default 1.")}, ["market"],
