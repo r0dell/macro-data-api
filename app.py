@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Query
 
 import macro
+import rates
 import sources as src
 
 app = FastAPI(
@@ -50,6 +51,17 @@ def convert(amount: float = Query(..., examples=[100]), frm: str = Query(..., al
 @app.get("/v1/cot", summary="CFTC Commitments of Traders positioning for a futures market")
 def cot(market: str = Query(..., examples=["ES"]), weeks: int = Query(1, ge=1, le=260)):
     return _run(macro.cot, market, weeks)
+
+
+@app.get("/v1/reference-rate", summary="A31: SOFR, EFFR, OBFR or €STR fixing (latest, on a date, or history)")
+def reference_rate(name: str = Query("SOFR", examples=["SOFR", "ESTR"]), date: Optional[str] = None,
+                   days: int = Query(1, ge=1, le=250)):
+    return _run(rates.reference_rate, name, date, days)
+
+
+@app.get("/v1/inflation", summary="A38: Latest inflation: US CPI (headline/core) or HICP for euro area/EU countries")
+def inflation(region: str = Query("US", examples=["US", "EA", "DE"])):
+    return _run(rates.inflation, region)
 
 
 @app.get("/v1/cot-markets", summary="Markets available for /v1/cot (free)")

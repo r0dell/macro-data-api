@@ -93,7 +93,8 @@ DATE = S("Optional date YYYY-MM-DD. Default: latest available.")
 TENORS = "1m, 1.5m, 2m, 3m, 4m, 6m, 1y, 2y, 3y, 5y, 7y, 10y, 20y, 30y"
 COTM = "ES, NQ, YM, RTY, GC, SI, CL, NG, 6E, 6J, 6B, 6S, ZN, BTC"
 
-# Preise je Agent: A6 = 0.0010, A7 = 0.0011, A8 = 0.0020 USDC
+# Preise je Agent (eindeutig für den Monitor): A6 0.0205, A7 0.0225, A8 0.0405, A31 0.0305, A38 0.0345 USDC
+A31, A38 = "$0.0305", "$0.0345"
 routes = {
     "GET /v1/yield-curve": route(
         "$0.0205", "Returns the US Treasury par yield curve (1 month to 30 years) for a date, with the 2y-10y and "
@@ -126,6 +127,23 @@ routes = {
         {"market": S("Market: " + COTM), "weeks": S("Weeks of history, 1-260. Default 1.")}, ["market"],
         {"market": "ES", "latest": {"report_date": "2026-10-13", "noncommercial": {"net": -70000}},
          "noncommercial_net_change_vs_prior_week": 20000}),
+    "GET /v1/reference-rate": route(
+        A31, "Returns the latest (or a dated) fixing of the overnight reference rates SOFR, EFFR, OBFR (New York "
+             "Fed) or euro short-term rate ESTR (ECB), with percentiles, volume, change in basis points and "
+             "optional history of up to 250 days. For treasury, loan pricing and fixed-income agents.",
+        ["finance", "rates", "sofr", "estr", "money-market", "fixed-income"], {"name": "SOFR"},
+        {"name": S("SOFR, EFFR, OBFR or ESTR"), "date": DATE, "days": S("History length 1-250, default 1")},
+        [], {"rate": "SOFR", "latest": {"date": "2026-10-29", "rate_pct": 3.94, "volume_bn_usd": 3145},
+             "change_bp_vs_previous": 0.0}),
+    "GET /v1/inflation": route(
+        A38, "Latest inflation figures: US CPI-U headline and core (year-over-year and seasonally adjusted "
+             "month-over-month) with the next BLS release date, or HICP annual and monthly rates for the euro "
+             "area, the EU or a European country (Eurostat).",
+        ["finance", "macro", "inflation", "cpi", "hicp", "economics"], {"region": "US"},
+        {"region": S("US, EA (euro area), EU or a European country code like DE, FR, CH")}, [],
+        {"region": "US", "latest": {"month": "2026-09", "headline_yoy_pct": 2.9, "core_yoy_pct": 3.0,
+                                    "headline_mom_pct_sa": 0.2}, "next_release": {"date": "2026-11-10",
+                                                                                  "time": "08:30 ET"}}),
 }
 
 app.add_middleware(PaymentMiddlewareASGI, routes=routes, server=server)
